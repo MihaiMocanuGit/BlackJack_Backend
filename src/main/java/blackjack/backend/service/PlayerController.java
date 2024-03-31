@@ -1,6 +1,7 @@
 package blackjack.backend.service;
 
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,12 +28,42 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class PlayerController {
-    private final PlayerRepository repository;
+    private PlayerRepository repository;
     private final PlayerModelAssembler assembler;
+
+    private boolean reversed;
+
+
+
+    private int sortRepoByLevelCondition(Player player1, Player player2)
+    {
+        if (player1.getLevel() == player2.getLevel())
+            return 0;
+        else if (player1.getLevel() < player2.getLevel() ^ reversed)
+            return -1;
+        else
+            return 1;
+
+    }
+    private List<Player> repoSortToList()
+    {
+        return repository.findAll().stream().sorted((p1, p2) ->
+                {
+                    if (p1.getLevel() == p2.getLevel())
+                        return 0;
+                    else if (p1.getLevel() < p2.getLevel() ^ reversed)
+                        return -1;
+                    else
+                        return 1;
+                }).toList();
+    }
+
 
     PlayerController(PlayerRepository repository, PlayerModelAssembler assembler) {
         this.repository = repository;
         this.assembler = assembler;
+
+        reversed = false;
     }
 
     @PostMapping("/players")
@@ -45,27 +76,29 @@ public class PlayerController {
                 .body(entityModel);
     }
 
+
     @GetMapping("/players")
     public CollectionModel<EntityModel<Player>> all() {
-        List<EntityModel<Player>> players = repository.findAll().stream() //
+        List<EntityModel<Player>> players = repoSortToList().stream() //
                 .map(assembler::toModel) //
                 .collect(Collectors.toList());
 
         return CollectionModel.of(players, linkTo(methodOn(PlayerController.class).all()).withSelfRel());
     }
 
-    @GetMapping("/players/{pageNo}-{pageSize}")
-    public CollectionModel<EntityModel<Player>> page(@PathVariable Long pageNo, @PathVariable Long pageSize) {
+    @GetMapping("/players/{pageNo}/{pageSize}")
+    public CollectionModel<EntityModel<Player>> page(@PathVariable("pageNo") Long pageNo, @PathVariable("pageSize") Long pageSize) {
+
         long startPosition = pageNo * pageSize;
         long endPosition = startPosition + pageSize;
 
-        Long[] playersIds = (Long[]) repository.findAll().stream() //
+        Object[] playersIds =   repoSortToList().stream() //
                                 .map(Player::getUid)
                                 .toArray();
         List<EntityModel<Player>> players = IntStream
                 .range((int) startPosition, (int) endPosition)
-                .mapToObj(i -> assembler.toModel(repository.findById(playersIds[i]).orElseThrow(()
-                                                        -> new PlayerNotFoundException(playersIds[i]))))
+                .mapToObj(i -> assembler.toModel(repository.findById((Long) playersIds[i]).orElseThrow(()
+                                                        -> new PlayerNotFoundException((Long) playersIds[i]))))
                 .toList();
         return CollectionModel.of(players, linkTo(methodOn(PlayerController.class).all()).withSelfRel());
 
@@ -81,6 +114,17 @@ public class PlayerController {
         return assembler.toModel(player);
     }
 
+
+    ///TODO: Make it a PutMapping instead
+    @GetMapping("/players/sort/{reverse}")
+    public CollectionModel<EntityModel<Player>> sortRepo(@PathVariable("reverse") Boolean reverse)
+    {
+        this.reversed = reverse;
+
+        EntityModel<Boolean> entityModel = EntityModel.of(reversed);
+
+        return this.all();
+    }
 
     @PutMapping("/players/{id}")
     ResponseEntity<?> replacePlayers(@RequestBody Player newPlayer, @PathVariable Long id) {
