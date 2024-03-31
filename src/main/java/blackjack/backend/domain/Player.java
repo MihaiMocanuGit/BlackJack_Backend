@@ -67,9 +67,9 @@ public class Player {
             return true;
         if (!(o instanceof Player))
             return false;
-        Player employee = (Player) o;
-        return Objects.equals(this.uid, employee.uid) && Objects.equals(this.username, employee.username)
-                && Objects.equals(this.bank, employee.bank) && Objects.equals(this.level, employee.level);
+        Player player = (Player) o;
+        return Objects.equals(this.uid, player.uid) && Objects.equals(this.username, player.username)
+                && Objects.equals(this.bank, player.bank) && Objects.equals(this.level, player.level);
     }
 
     @Override

@@ -13,13 +13,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -76,6 +70,7 @@ public class PlayerController {
     }
 
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/players")
     public CollectionModel<EntityModel<Player>> all() {
         List<EntityModel<Player>> players = repoSortToList().stream() //
@@ -85,15 +80,20 @@ public class PlayerController {
         return CollectionModel.of(players, linkTo(methodOn(PlayerController.class).all()).withSelfRel());
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/players/{pageNo}/{pageSize}")
     public CollectionModel<EntityModel<Player>> page(@PathVariable("pageNo") Long pageNo, @PathVariable("pageSize") Long pageSize) {
 
         long startPosition = pageNo * pageSize;
         long endPosition = startPosition + pageSize;
 
+
         Object[] playersIds =   repoSortToList().stream() //
                                 .map(Player::getUid)
                                 .toArray();
+        if (endPosition > playersIds.length)
+            endPosition = playersIds.length;
+
         List<EntityModel<Player>> players = IntStream
                 .range((int) startPosition, (int) endPosition)
                 .mapToObj(i -> assembler.toModel(repository.findById((Long) playersIds[i]).orElseThrow(()
@@ -104,6 +104,7 @@ public class PlayerController {
     }
 
     // Single item
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/players/{id}")
     public EntityModel<Player> one(@PathVariable Long id) {
 
@@ -115,10 +116,11 @@ public class PlayerController {
 
 
     ///TODO: Make it a PutMapping instead
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/players/sort/{reverse}")
-    public CollectionModel<EntityModel<Player>> sortRepo(@PathVariable("reverse") Boolean reverse)
+    public CollectionModel<EntityModel<Player>> sortRepo(@PathVariable("reverse") String reverse)
     {
-        this.reversed = reverse;
+        this.reversed = reverse.equalsIgnoreCase("true") || reverse.equals("1");
 
         EntityModel<Boolean> entityModel = EntityModel.of(reversed);
 

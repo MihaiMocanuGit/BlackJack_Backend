@@ -15,6 +15,6 @@ public class PlayerModelAssembler implements RepresentationModelAssembler<Player
 
         return EntityModel.of(player, //
                 linkTo(methodOn(PlayerController.class).one(player.getUid())).withSelfRel(),
-                linkTo(methodOn(PlayerController.class).all()).withRel("employees"));
+                linkTo(methodOn(PlayerController.class).all()).withRel("player"));
     }
 }
