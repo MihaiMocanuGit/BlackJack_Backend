@@ -84,6 +84,8 @@ public class PlayerController {
     @GetMapping("/players/{pageNo}/{pageSize}")
     public CollectionModel<EntityModel<Player>> page(@PathVariable("pageNo") Long pageNo, @PathVariable("pageSize") Long pageSize) {
 
+        if (pageNo < 0)
+            pageNo = 0L;
         long startPosition = pageNo * pageSize;
         long endPosition = startPosition + pageSize;
 
@@ -92,7 +94,15 @@ public class PlayerController {
                                 .map(Player::getUid)
                                 .toArray();
         if (endPosition > playersIds.length)
+        {
+            if(startPosition >= playersIds.length - 1)
+                startPosition = endPosition - 1;
+
+            while (startPosition >= playersIds.length - 1)
+                startPosition = startPosition - pageSize;
+
             endPosition = playersIds.length;
+        }
 
         List<EntityModel<Player>> players = IntStream
                 .range((int) startPosition, (int) endPosition)
@@ -114,7 +124,11 @@ public class PlayerController {
         return assembler.toModel(player);
     }
 
-
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/players/size")
+    public long size() {
+        return repository.findAll().size();
+    }
     ///TODO: Make it a PutMapping instead
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/players/sort/{reverse}")
