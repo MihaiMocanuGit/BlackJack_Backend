@@ -2,7 +2,7 @@ package blackjack.backend.assemblers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import blackjack.backend.domain.Player;
-import blackjack.backend.service.PlayerController;
+import blackjack.backend.controller.PlayerController;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
