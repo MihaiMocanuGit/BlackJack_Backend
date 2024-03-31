@@ -9,7 +9,6 @@ import blackjack.backend.assemblers.PlayerModelAssembler;
 import blackjack.backend.domain.Player;
 import blackjack.backend.exceptions.PlayerNotFoundException;
 import blackjack.backend.repository.PlayerRepository;
-import org.aspectj.apache.bcel.generic.LOOKUPSWITCH;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -61,7 +60,7 @@ public class PlayerController {
         long endPosition = startPosition + pageSize;
 
         Long[] playersIds = (Long[]) repository.findAll().stream() //
-                                .map(Player::getId)
+                                .map(Player::getUid)
                                 .toArray();
         List<EntityModel<Player>> players = IntStream
                 .range((int) startPosition, (int) endPosition)
@@ -88,12 +87,13 @@ public class PlayerController {
 
         Player updatedPlayer = repository.findById(id) //
                 .map(player -> {
-                    player.setName(newPlayer.getName());
-                    player.setRole(newPlayer.getRole());
+                    player.setUsername(newPlayer.getUsername());
+                    player.setBank(newPlayer.getBank());
+                    player.setLevel(newPlayer.getLevel());
                     return repository.save(player);
                 }) //
                 .orElseGet(() -> {
-                    newPlayer.setId(id);
+                    newPlayer.setUid(id);
                     return repository.save(newPlayer);
                 });
 

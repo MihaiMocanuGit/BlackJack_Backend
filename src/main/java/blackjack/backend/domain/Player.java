@@ -11,16 +11,17 @@ import java.util.Objects;
 @Entity
 public class Player {
 
-    private @Id
-    @GeneratedValue Long id;
-    private String name;
-    private String role;
+    private @Id @GeneratedValue Long uid;
+    private String username;
+    private float bank;
+    private float level;
 
 
-    public Player(String name, String role) {
+    public Player(String username, float bank, float level) {
 
-        this.name = name;
-        this.role = role;
+        this.username = username;
+        this.bank = bank;
+        this.level = level;
     }
 
     public Player() {
@@ -28,28 +29,35 @@ public class Player {
     }
 
 
-    public Long getId() {
-        return this.id;
+    public Long getUid() {
+        return this.uid;
     }
 
-    public String getName() {
-        return this.name;
+    public String getUsername() {
+        return this.username;
     }
 
-    public String getRole() {
-        return this.role;
+    public float getBank() {
+        return this.bank;
+    }
+    public float getLevel() {
+        return level;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+
+    public void setUid(Long id) {
+        this.uid = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String name) {
+        this.username = name;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setBank(float bank) {
+        this.bank = bank;
+    }
+    public void setLevel(float level) {
+        this.level = level;
     }
 
     @Override
@@ -60,17 +68,18 @@ public class Player {
         if (!(o instanceof Player))
             return false;
         Player employee = (Player) o;
-        return Objects.equals(this.id, employee.id) && Objects.equals(this.name, employee.name)
-                && Objects.equals(this.role, employee.role);
+        return Objects.equals(this.uid, employee.uid) && Objects.equals(this.username, employee.username)
+                && Objects.equals(this.bank, employee.bank) && Objects.equals(this.level, employee.level);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.name, this.role);
+        return Objects.hash(this.uid, this.username, this.bank, this.level);
     }
 
     @Override
     public String toString() {
-        return "Player{" + "id=" + this.id + ", name='" + this.name + '\'' + ", role='" + this.role + '\'' + '}';
+        return "Player{" + "id=" + this.uid + ", name='" + this.username + '\'' + ", bank='" + this.bank + '\'' +
+                            ", level='" + this.level +'}';
     }
 }
