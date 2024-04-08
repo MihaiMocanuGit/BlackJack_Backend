@@ -59,6 +59,7 @@ public class PlayerController {
         reversed = false;
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/players")
     ResponseEntity<?> newPlayer(@RequestBody Player newPlayer) {
 
