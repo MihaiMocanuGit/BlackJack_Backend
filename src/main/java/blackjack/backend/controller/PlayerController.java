@@ -21,6 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class PlayerController {
+    private final String origin = "http://localhost:3000";
     private PlayerRepository repository;
     private final PlayerModelAssembler assembler;
 
@@ -59,7 +60,7 @@ public class PlayerController {
         reversed = false;
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = origin)
     @PostMapping("/players")
     ResponseEntity<?> newPlayer(@RequestBody Player newPlayer) {
 
@@ -70,8 +71,13 @@ public class PlayerController {
                 .body(entityModel);
     }
 
+    @CrossOrigin(origins = origin)
+    @GetMapping("/status")
+    public int status() {
 
-    @CrossOrigin(origins = "http://localhost:3000")
+        return 1;
+    }
+    @CrossOrigin(origins = origin)
     @GetMapping("/players")
     public CollectionModel<EntityModel<Player>> all() {
         List<EntityModel<Player>> players = repoSortToList().stream() //
@@ -81,7 +87,7 @@ public class PlayerController {
         return CollectionModel.of(players, linkTo(methodOn(PlayerController.class).all()).withSelfRel());
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = origin)
     @GetMapping("/players/{pageNo}/{pageSize}")
     public CollectionModel<EntityModel<Player>> page(@PathVariable("pageNo") Long pageNo, @PathVariable("pageSize") Long pageSize) {
 
@@ -96,13 +102,10 @@ public class PlayerController {
                                 .toArray();
         if (endPosition > playersIds.length)
         {
-            if(startPosition >= playersIds.length - 1)
-                startPosition = endPosition - 1;
 
-            while (startPosition >= playersIds.length - 1)
-                startPosition = startPosition - pageSize;
+            startPosition = (playersIds.length / pageSize) * pageSize;
+            endPosition = Math.min(playersIds.length, startPosition + pageSize);
 
-            endPosition = playersIds.length;
         }
 
         List<EntityModel<Player>> players = IntStream
@@ -115,7 +118,7 @@ public class PlayerController {
     }
 
     // Single item
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = origin)
     @GetMapping("/players/{id}")
     public EntityModel<Player> one(@PathVariable Long id) {
 
@@ -125,13 +128,14 @@ public class PlayerController {
         return assembler.toModel(player);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = origin)
     @GetMapping("/players/size")
     public long size() {
         return repository.findAll().size();
     }
+
     ///TODO: Make it a PutMapping instead
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = origin)
     @GetMapping("/players/sort/{reverse}")
     public CollectionModel<EntityModel<Player>> sortRepo(@PathVariable("reverse") String reverse)
     {
