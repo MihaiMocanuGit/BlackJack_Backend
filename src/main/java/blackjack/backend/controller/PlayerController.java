@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import blackjack.backend.assemblers.PlayerModelAssembler;
+import blackjack.backend.configuration.Faker;
 import blackjack.backend.domain.Player;
 import blackjack.backend.exceptions.PlayerNotFoundException;
 import blackjack.backend.repository.PlayerRepository;
@@ -69,6 +70,18 @@ public class PlayerController {
         return ResponseEntity //
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
                 .body(entityModel);
+    }
+
+    @CrossOrigin(origins = origin)
+    @PostMapping("/fakers")
+    void newPlayer() {
+        Faker faker = new Faker("data/usernames.txt");
+        faker.init();
+
+        for (long i = 0; i < 100; i++)
+        {
+            repository.save(faker.getFakePlayer());
+        }
     }
 
     @CrossOrigin(origins = origin)
