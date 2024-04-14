@@ -100,6 +100,7 @@ public class PlayerController {
         Object[] playersIds =   repoSortToList().stream() //
                                 .map(Player::getUid)
                                 .toArray();
+
         if (endPosition > playersIds.length)
         {
 
@@ -145,7 +146,7 @@ public class PlayerController {
 
         return this.all();
     }
-
+    @CrossOrigin(origins = origin)
     @PutMapping("/players/{id}")
     ResponseEntity<?> replacePlayers(@RequestBody Player newPlayer, @PathVariable Long id) {
 
@@ -168,6 +169,7 @@ public class PlayerController {
                 .body(entityModel);
     }
 
+    @CrossOrigin(origins = origin)
     @DeleteMapping("/players/{id}")
     ResponseEntity<?> deletePlayer(@PathVariable Long id) {
 
