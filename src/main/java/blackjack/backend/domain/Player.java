@@ -1,17 +1,14 @@
 package blackjack.backend.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 
 import java.util.Objects;
 
 
 
-@Entity
 public class Player {
 
-    private @Id @GeneratedValue Long uid;
+    private @Id String uid;
     private String username;
     private float bank;
     private float level;
@@ -29,7 +26,7 @@ public class Player {
     }
 
 
-    public Long getUid() {
+    public String getUid() {
         return this.uid;
     }
 
@@ -44,8 +41,7 @@ public class Player {
         return level;
     }
 
-
-    public void setUid(Long id) {
+    public void setUid(String id) {
         this.uid = id;
     }
 

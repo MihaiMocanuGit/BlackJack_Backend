@@ -74,7 +74,7 @@ public class PlayerController {
 
     @CrossOrigin(origins = origin)
     @PostMapping("/fakers")
-    void newPlayer() {
+    void fake() {
         Faker faker = new Faker("data/usernames.txt");
         faker.init();
 
@@ -124,8 +124,8 @@ public class PlayerController {
 
         List<EntityModel<Player>> players = IntStream
                 .range((int) startPosition, (int) endPosition)
-                .mapToObj(i -> assembler.toModel(repository.findById((Long) playersIds[i]).orElseThrow(()
-                                                        -> new PlayerNotFoundException((Long) playersIds[i]))))
+                .mapToObj(i -> assembler.toModel(repository.findById((String) playersIds[i]).orElseThrow(()
+                                                        -> new PlayerNotFoundException((String) playersIds[i]))))
                 .toList();
         return CollectionModel.of(players, linkTo(methodOn(PlayerController.class).all()).withSelfRel());
 
@@ -134,7 +134,7 @@ public class PlayerController {
     // Single item
     @CrossOrigin(origins = origin)
     @GetMapping("/players/{id}")
-    public EntityModel<Player> one(@PathVariable Long id) {
+    public EntityModel<Player> one(@PathVariable String id) {
 
         Player player = repository.findById(id) //
                 .orElseThrow(() -> new PlayerNotFoundException(id));
@@ -161,7 +161,7 @@ public class PlayerController {
     }
     @CrossOrigin(origins = origin)
     @PutMapping("/players/{id}")
-    ResponseEntity<?> replacePlayers(@RequestBody Player newPlayer, @PathVariable Long id) {
+    ResponseEntity<?> replacePlayers(@RequestBody Player newPlayer, @PathVariable String id) {
 
         Player updatedPlayer = repository.findById(id) //
                 .map(player -> {
@@ -184,7 +184,7 @@ public class PlayerController {
 
     @CrossOrigin(origins = origin)
     @DeleteMapping("/players/{id}")
-    ResponseEntity<?> deletePlayer(@PathVariable Long id) {
+    ResponseEntity<?> deletePlayer(@PathVariable String id) {
 
         repository.deleteById(id);
 

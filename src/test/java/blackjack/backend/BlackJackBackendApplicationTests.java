@@ -40,7 +40,7 @@ class BlackJackBackendApplicationTests {
     @LocalServerPort
     int randomServerPort;
     long actualSize;
-    ArrayList<Long> oldUids = new ArrayList<>();
+    ArrayList<String> oldUids = new ArrayList<>();
     @Autowired
     PlayerController controller;
     @Autowired
@@ -84,11 +84,11 @@ class BlackJackBackendApplicationTests {
             HttpEntity<Player> request = new HttpEntity<>(player, headers);
 
             ResponseEntity<String> result = this.restTemplate.postForEntity(uri, request, String.class);
-            String id = result.getBody().substring("{\"uid\":".length(), result.getBody().indexOf( ",\"username\":\"Johnny"));
+            String id = result.getBody().substring("{\"uid\":\"".length(), result.getBody().indexOf( "\",\"username\":\"Johnny"));
             //Verify request succeed
             assertEquals(201, result.getStatusCodeValue());
-            String body = "{\"uid\":" + id +
-                    ",\"username\":\"Johnny" + Integer.toString(i) +
+            String body = "{\"uid\":\"" + id +
+                    "\",\"username\":\"Johnny" + Integer.toString(i) +
                     "\",\"bank\":" + i * 10.0f +
                     ",\"level\":" + i * 1.125f +
                     ",\"_links\":{\"self\":{\"href\":\"http://localhost:8080/players/" + id +
@@ -147,7 +147,7 @@ class BlackJackBackendApplicationTests {
     @Test
     void one() {
         for (int i = 0; i < oldUids.size(); i++) {
-           long uid = Objects.requireNonNull(controller.one(oldUids.get(i)).getContent()).getUid();
+           String uid = Objects.requireNonNull(controller.one(oldUids.get(i)).getContent()).getUid();
            assertEquals(oldUids.get(i), uid);
         }
     }
@@ -171,17 +171,17 @@ class BlackJackBackendApplicationTests {
     @Test
     void replacePlayers() throws URISyntaxException {
         for (int i = 0; i < oldUids.size(); i++) {
-            long uid = Objects.requireNonNull(controller.one(oldUids.get(i)).getContent()).getUid();
+            String uid = Objects.requireNonNull(controller.one(oldUids.get(i)).getContent()).getUid();
             Player player = new Player("Johnny" + Integer.toString(-i), i * 10, i * 1.125f);
 
             final String baseUrl = "http://localhost:" + randomServerPort + "/players/" + uid;
 
 
             ResponseEntity<String> result = this.restTemplate.exchange(baseUrl, HttpMethod.PUT, new HttpEntity<>(player), String.class);
-            String id = result.getBody().substring("{\"uid\":".length(), result.getBody().indexOf( ",\"username\":"));
+            String id = result.getBody().substring("{\"uid\":\"".length(), result.getBody().indexOf( "\",\"username\":"));
             assertEquals(201, result.getStatusCodeValue());
-            String body = "{\"uid\":" + id +
-                    ",\"username\":\"Johnny" + -i +
+            String body = "{\"uid\":\"" + id +
+                    "\",\"username\":\"Johnny" + -i +
                     "\",\"bank\":" + i * 10.0f +
                     ",\"level\":" + i * 1.125f +
                     ",\"_links\":{\"self\":{\"href\":\"http://localhost:8080/players/" + id +
