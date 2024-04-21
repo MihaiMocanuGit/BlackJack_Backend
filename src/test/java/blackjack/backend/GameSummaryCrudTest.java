@@ -48,18 +48,19 @@ public class GameSummaryCrudTest {
             Player player = new Player(Integer.toString(i), i, i);
 
             player = players.save(player);
+            GameSummary summary;
             for (int j = 0; j < 20; j++) {
-                GameSummary summary = new GameSummary(player, i * 20 + j, 1000 + i * 20 + j, 2000 + i * 20 + j);
+                summary = new GameSummary(player, i * 20 + j, 1000 + i * 20 + j, 2000 + i * 20 + j);
 
                 summary = summaries.save(summary);
 
                 assertEquals(summaries.count(), i * 20 + j + 1);
                 assertTrue(summaries.existsById(summary.getUid()));
-
-                GameSummary finalSummary = summary;
-                //List<String> summaryIds = player.getGames().stream().map(GameSummary::getUid).toList();
-                assertEquals(player.getGames(), j + 1);
             }
+            List<GameSummary> test = summaries.findAll().stream().toList();
+            players.delete(player);
+            test = summaries.findAll().stream().toList();
+            assertEquals(0, summaries.count());
         }
     }
 
