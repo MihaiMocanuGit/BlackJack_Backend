@@ -1,17 +1,27 @@
 package blackjack.backend.domain;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.ReadOnlyProperty;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
 
 public class Player {
 
+
     private @Id String uid;
     private String username;
     private float bank;
     private float level;
+
+    @ReadOnlyProperty
+    @DocumentReference(lookup="{'player':?#{#self._id} }")
+    List<GameSummary> games = new ArrayList<>();
+
 
 
     public Player(String username, float bank, float level) {
@@ -19,6 +29,14 @@ public class Player {
         this.username = username;
         this.bank = bank;
         this.level = level;
+    }
+
+    public Player(String username, float bank, float level, List<GameSummary> games) {
+
+        this.username = username;
+        this.bank = bank;
+        this.level = level;
+        this.games = games;
     }
 
     public Player() {
@@ -73,9 +91,20 @@ public class Player {
         return Objects.hash(this.uid, this.username, this.bank, this.level);
     }
 
+//    @Override
+//    public String toString() {
+//        return "Player{" + "id=" + this.uid + ", name='" + this.username + '\'' + ", bank='" + this.bank + '\'' +
+//                            ", level='" + this.level +'}';
+//    }
+
     @Override
     public String toString() {
-        return "Player{" + "id=" + this.uid + ", name='" + this.username + '\'' + ", bank='" + this.bank + '\'' +
-                            ", level='" + this.level +'}';
+        return "Player{" +
+                "uid='" + uid + '\'' +
+                ", username='" + username + '\'' +
+                ", bank=" + bank +
+                ", level=" + level +
+                ", games=" + games +
+                '}';
     }
 }
