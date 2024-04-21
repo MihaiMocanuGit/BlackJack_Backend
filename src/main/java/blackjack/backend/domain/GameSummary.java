@@ -1,5 +1,7 @@
 package blackjack.backend.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -8,6 +10,7 @@ public class GameSummary {
 
     //https://spring.io/blog/2021/11/29/spring-data-mongodb-relation-modelling
     @DocumentReference(lazy=true)
+    @JsonBackReference
     private Player player;
     private float profit;
     private float experienceGained;

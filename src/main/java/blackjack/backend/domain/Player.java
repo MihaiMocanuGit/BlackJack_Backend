@@ -1,5 +1,6 @@
 package blackjack.backend.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
@@ -18,11 +19,16 @@ public class Player {
     private float bank;
     private float level;
 
+
+
     @ReadOnlyProperty
-    @DocumentReference(lookup="{'player':?#{#self._id} }")
+    @DocumentReference(lookup="{'player':?#{#self._id} }", lazy = true)
+    @JsonManagedReference
     List<GameSummary> games = new ArrayList<>();
 
-
+    public List<GameSummary> getGames() {
+        return games;
+    }
 
     public Player(String username, float bank, float level) {
 
@@ -83,12 +89,13 @@ public class Player {
             return false;
         Player player = (Player) o;
         return Objects.equals(this.uid, player.uid) && Objects.equals(this.username, player.username)
-                && Objects.equals(this.bank, player.bank) && Objects.equals(this.level, player.level);
+                && Objects.equals(this.bank, player.bank) && Objects.equals(this.level, player.level)
+                && Objects.equals(this.games, player.games);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.uid, this.username, this.bank, this.level);
+        return Objects.hash(this.uid, this.username, this.bank, this.level, this.games);
     }
 
 //    @Override

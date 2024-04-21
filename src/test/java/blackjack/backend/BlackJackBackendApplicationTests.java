@@ -2,29 +2,21 @@ package blackjack.backend;
 
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import blackjack.backend.controller.PlayerController;
+import blackjack.backend.configuration.Faker;
+import blackjack.backend.controller.PrimaryController;
 import blackjack.backend.domain.Player;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.*;
-import org.springframework.test.web.servlet.MockMvc;
+
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,40 +27,81 @@ import java.util.Objects;
 
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.DEFINED_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BlackJackBackendApplicationTests {
 
     @LocalServerPort
     int randomServerPort;
     long actualSize;
     ArrayList<String> oldUids = new ArrayList<>();
+
     @Autowired
-    PlayerController controller;
+    PrimaryController controller;
+
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Test
-    void runTests() throws Exception {
-        contextLoads();
-        allBasic();
-        controller.all().forEach(model -> oldUids.add(Objects.requireNonNull(model.getContent()).getUid()));
-        newPlayer();
-        status();
-        all();
-        page();
-        one();
-        sortRepo();
-        replacePlayers();
-        deletePlayer();
-    }
-    @Test
-    void contextLoads() {
+    Faker faker = new Faker("data/usernames.txt");
 
+//    @Test
+//    void runTests() throws Exception {
+//        contextLoads();
+//        allBasic();
+//        controller.all().forEach(model -> oldUids.add(Objects.requireNonNull(model.getContent()).getUid()));
+//        newPlayer();
+//        status();
+//        all();
+//        page();
+//        one();
+//        sortRepo();
+//        replacePlayers();
+//        deletePlayer();
+//
+//
+//
+//    }
+    @Test
+    @Order(1)
+    void contextLoads() throws URISyntaxException {
+        faker.init();
         assertThat(controller).isNotNull();
 
+        List<Player> players =  controller.all().getContent().stream().map(EntityModel::getContent).toList();
+        players.forEach(x -> {
+            final String baseUrl = "http://localhost:" + randomServerPort + "/players/" + x.getUid();
+
+
+            ResponseEntity<String> result = this.restTemplate.exchange(baseUrl, HttpMethod.DELETE, new HttpEntity<>(x.getUid()), String.class);
+        });
+
+        assertEquals(0, controller.size());
+        actualSize = 0;
+
+
+        for (int i = 0; i < 10; i++) {
+
+            Player player = faker.getFakePlayer();
+            final String baseUrl = "http://localhost:" + randomServerPort + "/players";
+            URI uri = new URI(baseUrl);
+
+            HttpHeaders headers = new HttpHeaders();
+            // headers.set("Accept-Post", "true");
+
+            HttpEntity<Player> request = new HttpEntity<>(player, headers);
+            ResponseEntity<String> result = this.restTemplate.postForEntity(uri, request, String.class);
+            actualSize++;
+        }
+
+
+
     }
 
     @Test
+    @Order(3)
     void newPlayer() throws Exception {
+        controller.all().forEach(model -> oldUids.add(Objects.requireNonNull(model.getContent()).getUid()));
+
         //ArrayList<Player> players = new ArrayList<>();
         long oldSize = controller.size();
         this.actualSize = oldSize;
@@ -99,17 +132,20 @@ class BlackJackBackendApplicationTests {
         this.actualSize = 100 + oldSize;
     }
     @Test
+    @Order(4)
     void status() {
         assertEquals(controller.status(), 1);
     }
 
     @Test
+    @Order(2)
     void allBasic()
     {
         assertEquals(controller.all().getContent().size(), controller.size());
     }
 
     @Test
+    @Order(5)
     void all() {
         CollectionModel<EntityModel<Player>> response = controller.all();
         Collection<EntityModel<Player>> list = response.getContent();
@@ -125,6 +161,7 @@ class BlackJackBackendApplicationTests {
     }
 
     @Test
+    @Order(6)
     void page() {
         for (long i = 1; i <= actualSize; i++)
         {
@@ -145,6 +182,7 @@ class BlackJackBackendApplicationTests {
     }
 
     @Test
+    @Order(7)
     void one() {
         for (int i = 0; i < oldUids.size(); i++) {
            String uid = Objects.requireNonNull(controller.one(oldUids.get(i)).getContent()).getUid();
@@ -154,6 +192,7 @@ class BlackJackBackendApplicationTests {
 
 
     @Test
+    @Order(8)
     void sortRepo() {
         CollectionModel<EntityModel<Player>> response = controller.sortRepo(Boolean.toString(false));
         Collection<EntityModel<Player>> list = response.getContent();
@@ -169,6 +208,7 @@ class BlackJackBackendApplicationTests {
     }
 
     @Test
+    @Order(9)
     void replacePlayers() throws URISyntaxException {
         for (int i = 0; i < oldUids.size(); i++) {
             String uid = Objects.requireNonNull(controller.one(oldUids.get(i)).getContent()).getUid();
@@ -191,6 +231,7 @@ class BlackJackBackendApplicationTests {
     }
 
     @Test
+    @Order(10)
     void deletePlayer() {
          List<Player> players =  controller.all().getContent().stream().map(EntityModel::getContent).toList();
          players.forEach(x -> {
@@ -205,5 +246,6 @@ class BlackJackBackendApplicationTests {
 
          assertEquals(0, controller.size());
     }
+
 
 }

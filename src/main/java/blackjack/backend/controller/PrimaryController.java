@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import blackjack.backend.assemblers.GameSummaryAssembler;
 import blackjack.backend.assemblers.PlayerModelAssembler;
 import blackjack.backend.configuration.Faker;
 import blackjack.backend.domain.Player;
 import blackjack.backend.exceptions.PlayerNotFoundException;
+import blackjack.backend.repository.GameSummaryRepository;
 import blackjack.backend.repository.PlayerRepository;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -21,13 +23,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RestController
-public class PlayerController {
+public class PrimaryController {
     private final String origin = "http://localhost:3000";
-    private PlayerRepository repository;
-    private final PlayerModelAssembler assembler;
+    private PlayerRepository players;
+    private GameSummaryRepository sumarries;
+    private GameSummaryAssembler summaryAssembler;
+    private final PlayerModelAssembler playerAssembler;
 
     private boolean reversed;
 
+    //public GameSummaryRepository TEMP_summaries() {return  sumarries;}
+    //public PlayerRepository TEMP_players() {return  players;}
 
 
     private int sortRepoByLevelCondition(Player player1, Player player2)
@@ -42,7 +48,7 @@ public class PlayerController {
     }
     private List<Player> repoSortToList()
     {
-        return repository.findAll().stream().sorted((p1, p2) ->
+        return players.findAll().stream().sorted((p1, p2) ->
                 {
                     if (p1.getLevel() == p2.getLevel())
                         return 0;
@@ -54,9 +60,12 @@ public class PlayerController {
     }
 
 
-    PlayerController(PlayerRepository repository, PlayerModelAssembler assembler) {
-        this.repository = repository;
-        this.assembler = assembler;
+    PrimaryController(PlayerRepository players, PlayerModelAssembler playerAssembler, GameSummaryRepository summaries, GameSummaryAssembler summaryAssembler) {
+        this.players = players;
+        this.playerAssembler = playerAssembler;
+
+        this.sumarries = summaries;
+        this.summaryAssembler = summaryAssembler;
 
         reversed = false;
     }
@@ -65,7 +74,7 @@ public class PlayerController {
     @PostMapping("/players")
     ResponseEntity<?> newPlayer(@RequestBody Player newPlayer) {
 
-        EntityModel<Player> entityModel = assembler.toModel(repository.save(newPlayer));
+        EntityModel<Player> entityModel = playerAssembler.toModel(players.save(newPlayer));
 
         return ResponseEntity //
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
@@ -80,7 +89,7 @@ public class PlayerController {
 
         for (long i = 0; i < 100; i++)
         {
-            repository.save(faker.getFakePlayer());
+            players.save(faker.getFakePlayer());
         }
     }
 
@@ -94,10 +103,10 @@ public class PlayerController {
     @GetMapping("/players")
     public CollectionModel<EntityModel<Player>> all() {
         List<EntityModel<Player>> players = repoSortToList().stream() //
-                .map(assembler::toModel) //
+                .map(playerAssembler::toModel) //
                 .collect(Collectors.toList());
 
-        return CollectionModel.of(players, linkTo(methodOn(PlayerController.class).all()).withSelfRel());
+        return CollectionModel.of(players, linkTo(methodOn(PrimaryController.class).all()).withSelfRel());
     }
 
     @CrossOrigin(origins = origin)
@@ -124,10 +133,10 @@ public class PlayerController {
 
         List<EntityModel<Player>> players = IntStream
                 .range((int) startPosition, (int) endPosition)
-                .mapToObj(i -> assembler.toModel(repository.findById((String) playersIds[i]).orElseThrow(()
+                .mapToObj(i -> playerAssembler.toModel(this.players.findById((String) playersIds[i]).orElseThrow(()
                                                         -> new PlayerNotFoundException((String) playersIds[i]))))
                 .toList();
-        return CollectionModel.of(players, linkTo(methodOn(PlayerController.class).all()).withSelfRel());
+        return CollectionModel.of(players, linkTo(methodOn(PrimaryController.class).all()).withSelfRel());
 
     }
 
@@ -136,16 +145,16 @@ public class PlayerController {
     @GetMapping("/players/{id}")
     public EntityModel<Player> one(@PathVariable String id) {
 
-        Player player = repository.findById(id) //
+        Player player = players.findById(id) //
                 .orElseThrow(() -> new PlayerNotFoundException(id));
 
-        return assembler.toModel(player);
+        return playerAssembler.toModel(player);
     }
 
     @CrossOrigin(origins = origin)
     @GetMapping("/players/size")
     public long size() {
-        return repository.findAll().size();
+        return players.findAll().size();
     }
 
     ///TODO: Make it a PutMapping instead
@@ -163,19 +172,19 @@ public class PlayerController {
     @PutMapping("/players/{id}")
     ResponseEntity<?> replacePlayers(@RequestBody Player newPlayer, @PathVariable String id) {
 
-        Player updatedPlayer = repository.findById(id) //
+        Player updatedPlayer = players.findById(id) //
                 .map(player -> {
                     player.setUsername(newPlayer.getUsername());
                     player.setBank(newPlayer.getBank());
                     player.setLevel(newPlayer.getLevel());
-                    return repository.save(player);
+                    return players.save(player);
                 }) //
                 .orElseGet(() -> {
                     newPlayer.setUid(id);
-                    return repository.save(newPlayer);
+                    return players.save(newPlayer);
                 });
 
-        EntityModel<Player> entityModel = assembler.toModel(updatedPlayer);
+        EntityModel<Player> entityModel = playerAssembler.toModel(updatedPlayer);
 
         return ResponseEntity //
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()) //
@@ -186,7 +195,7 @@ public class PlayerController {
     @DeleteMapping("/players/{id}")
     ResponseEntity<?> deletePlayer(@PathVariable String id) {
 
-        repository.deleteById(id);
+        players.deleteById(id);
 
         return ResponseEntity.noContent().build();
     }

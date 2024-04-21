@@ -49,8 +49,8 @@ public class Faker {
 
     public GameSummary getFakeGameSummary(Player player)
     {
-        float lowerBound = -100.0f + player.getLevel() * 2.5f;
-        float upperBound = lowerBound + player.getLevel() * 2.5f;
+        float lowerBound = -200.0f + player.getLevel() * 3.5f;
+        float upperBound = 50.0f + player.getLevel() * 3.5f;
 
         float profit = rand.nextFloat(lowerBound, upperBound);
         int handsPlayed = rand.nextInt(100);
