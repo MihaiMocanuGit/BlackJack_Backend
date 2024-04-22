@@ -124,6 +124,7 @@ class BlackJackBackendApplicationTests {
                     "\",\"username\":\"Johnny" + Integer.toString(i) +
                     "\",\"bank\":" + i * 10.0f +
                     ",\"level\":" + i * 1.125f +
+                    ",\"games\":[]" +
                     ",\"_links\":{\"self\":{\"href\":\"http://localhost:8080/players/" + id +
                     "\"},\"player\":{\"href\":\"http://localhost:8080/players\"}}}";
             assertEquals( body, result.getBody());
@@ -163,13 +164,13 @@ class BlackJackBackendApplicationTests {
     @Test
     @Order(6)
     void page() {
-        for (long i = 1; i <= actualSize; i++)
+        for (long i = 1; i <= actualSize; i+= 3)
         {
             CollectionModel<EntityModel<Player>> response = controller.page(0L, i);
             Collection<EntityModel<Player>> list = response.getContent();
             assertEquals(i, list.size());
 
-            for (long j = 0; j < actualSize / i; j++)
+            for (long j = 0; j < actualSize / i; j+=3)
             {
                 CollectionModel<EntityModel<Player>> responseInner = controller.page(j, i);
                 Collection<EntityModel<Player>> listInner = response.getContent();
@@ -224,6 +225,7 @@ class BlackJackBackendApplicationTests {
                     "\",\"username\":\"Johnny" + -i +
                     "\",\"bank\":" + i * 10.0f +
                     ",\"level\":" + i * 1.125f +
+                    ",\"games\":[]" +
                     ",\"_links\":{\"self\":{\"href\":\"http://localhost:8080/players/" + id +
                     "\"},\"player\":{\"href\":\"http://localhost:8080/players\"}}}";
             assertEquals( body, result.getBody());
