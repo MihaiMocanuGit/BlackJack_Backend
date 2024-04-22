@@ -60,26 +60,33 @@ public class CascadingService implements CascadingSummaryI {
         return false;
     }
     public boolean updateSummary(String uid, GameSummary newSummary) {
-        Optional<GameSummary> summary = summaries.findById(uid);
+        Optional<GameSummary> oldSummary = summaries.findById(uid);
 
-        if (summary.isPresent()) {
+        if (oldSummary.isPresent()) {
 
-            //delete the summary from the player's game history list
-            summaries.findGameSummariesByPlayer_Uid(summary.get().getPlayer().getUid()).removeIf(s -> Objects.equals(s.getUid(), uid));
+            //delete the summary from the old player's game history list
+           summaries.findGameSummariesByPlayer_Uid(oldSummary.get().getPlayer().getUid()).stream()
+                        .filter(s -> Objects.equals(s.getUid(), uid))
+                        .forEach(summary1 -> summaries.deleteById(summary1.getUid()));
 
 
             //update the data
-            summary.get().setPlayer(newSummary.getPlayer());
-            summary.get().setProfit(newSummary.getProfit());
-            summary.get().setExperienceGained(newSummary.getExperienceGained());
-            summary.get().setHandsPlayed(newSummary.getHandsPlayed());
+            oldSummary.get().setPlayer(newSummary.getPlayer());
+            oldSummary.get().setProfit(newSummary.getProfit());
+            oldSummary.get().setExperienceGained(newSummary.getExperienceGained());
+            oldSummary.get().setHandsPlayed(newSummary.getHandsPlayed());
 
             //add the summary to the new player's game history
             Optional<Player> player = players.findById(newSummary.getPlayer().getUid());
-            if (player.isPresent())
-                player.get().getGames().add(newSummary);
+            if (player.isPresent()) {
+                player.get().getGames().add(oldSummary.get());
 
-            return true;
+
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         return false;

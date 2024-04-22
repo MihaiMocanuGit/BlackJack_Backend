@@ -61,6 +61,27 @@ public class GameSummaryCrudTest {
             service.deletePlayer(player.getUid());
             assertEquals(0, service.countGameSummaries());
         }
+        Player player = new Player(Integer.toString(1), 2, 3);
+        GameSummary summary = new GameSummary(player, 12, 13, 14);
+
+        service.addPlayer(player);
+        summary = service.addSummary(summary);
+
+        Player player1 = new Player(Integer.toString(11), 12, 13);
+        player1 = service.addPlayer(player1);
+        GameSummary summary1 = new GameSummary(player1, 12, 13, 14);
+        service.updateSummary(summary.getUid(), summary1);
+
+        assertTrue(service.getPlayer(player.getUid()).isPresent());
+        assertEquals(service.getPlayer(player.getUid()).get().getGames().size(), 0);
+
+        assertTrue(service.getPlayer(player1.getUid()).isPresent());
+
+
+        service.removeAllPlayers();
+        service.removeAllPSummaries();
+
+
     }
 
 }
