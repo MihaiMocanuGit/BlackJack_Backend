@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface GameSummaryRepository extends MongoRepository<GameSummary, String> {
     public List<GameSummary> findGameSummariesByPlayer(Player player);
+    public List<GameSummary> findGameSummariesByPlayer_Uid(String playerUid);
 
 }

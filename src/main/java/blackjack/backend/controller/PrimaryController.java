@@ -26,7 +26,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class PrimaryController {
     private final String origin = "http://localhost:3000";
     private PlayerRepository players;
-    private GameSummaryRepository sumarries;
+    private GameSummaryRepository summaries;
     private GameSummaryAssembler summaryAssembler;
     private final PlayerModelAssembler playerAssembler;
 
@@ -64,7 +64,7 @@ public class PrimaryController {
         this.players = players;
         this.playerAssembler = playerAssembler;
 
-        this.sumarries = summaries;
+        this.summaries = summaries;
         this.summaryAssembler = summaryAssembler;
 
         reversed = false;
