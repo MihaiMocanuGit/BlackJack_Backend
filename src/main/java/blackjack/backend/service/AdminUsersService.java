@@ -5,7 +5,6 @@ import blackjack.backend.domain.LoginDTO;
 import blackjack.backend.repository.AdminUserRepository;
 import blackjack.backend.response.LoginMessage;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -13,18 +12,22 @@ import java.util.Optional;
 @Service
 public class AdminUsersService implements AdminUsersServiceI {
 
-    @Autowired
+    //@Autowired
     private AdminUserRepository adminUserRepository;
-    @Autowired
+    //@Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public AdminUser addAdminUser(AdminUserDTO employeeDTO) {
+    public boolean addAdminUser(AdminUserDTO employeeDTO) {
         AdminUser employee = new AdminUser(
                 employeeDTO.getEmail(),
                 this.passwordEncoder.encode(employeeDTO.getPassword())
         );
-        return adminUserRepository.save(employee);
+        if (adminUserRepository.findByEmail(employeeDTO.getEmail()).isPresent())
+            return false;
+
+        adminUserRepository.save(employee);
+        return true;
     }
     @Override
     public LoginMessage loginAdminUser(LoginDTO loginDTO) {
@@ -35,7 +38,7 @@ public class AdminUsersService implements AdminUsersServiceI {
             String encodedPassword = employee1.getPassword();
             boolean isPwdRight = passwordEncoder.matches(password, encodedPassword);
             if (isPwdRight) {
-                Optional<AdminUser> employee = adminUserRepository.findOneByEmailAndPassword(loginDTO.getEmail(), encodedPassword);
+                Optional<AdminUser> employee = adminUserRepository.findByEmailAndPassword(loginDTO.getEmail(), encodedPassword);
                 if (employee.isPresent()) {
                     return new LoginMessage("Login Success", true);
                 } else {

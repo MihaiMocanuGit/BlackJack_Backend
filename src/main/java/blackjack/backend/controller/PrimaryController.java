@@ -8,11 +8,13 @@ import java.util.stream.IntStream;
 import blackjack.backend.assemblers.GameSummaryAssembler;
 import blackjack.backend.assemblers.PlayerModelAssembler;
 import blackjack.backend.configuration.Faker;
+import blackjack.backend.domain.AdminUserDTO;
+import blackjack.backend.domain.LoginDTO;
 import blackjack.backend.domain.Player;
 import blackjack.backend.exceptions.PlayerNotFoundException;
 import blackjack.backend.repository.GameSummaryRepository;
 import blackjack.backend.repository.PlayerRepository;
-import blackjack.backend.service.AdminUsersService;
+import blackjack.backend.response.LoginMessage;
 import blackjack.backend.service.AdminUsersServiceI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -36,7 +38,8 @@ public class PrimaryController {
 
 
 
-
+    @Autowired
+    private AdminUsersServiceI adminUsersService;
     private boolean reversed;
 
     //public GameSummaryRepository TEMP_summaries() {return  sumarries;}
@@ -205,5 +208,24 @@ public class PrimaryController {
         players.deleteById(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    ///https://www.tutussfunny.com/login-registration-form-using-spring-boot-react/
+    ///https://www.tutussfunny.com/login-and-registration-rest-api-using-spring-boot-mysql/
+    ///https://www.youtube.com/watch?v=ug3K7h0LbJ0
+    ///https://www.youtube.com/watch?v=4w2ZYxiIvkc
+    /// actually, try https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
+
+    @PostMapping(path = "/save")
+    public boolean saveEmployee(@RequestBody AdminUserDTO adminUserDTO)
+    {
+        return adminUsersService.addAdminUser(adminUserDTO);
+    }
+    @PostMapping(path = "/login")
+    //TODO: create ResponseEntity for return
+    public ResponseEntity<?> loginEmployee(@RequestBody LoginDTO loginDTO)
+    {
+        LoginMessage loginResponse = adminUsersService.loginAdminUser(loginDTO);
+        return ResponseEntity.ok(loginResponse);
     }
 }

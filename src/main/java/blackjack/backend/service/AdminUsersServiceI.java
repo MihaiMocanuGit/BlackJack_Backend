@@ -6,6 +6,6 @@ import blackjack.backend.domain.LoginDTO;
 import blackjack.backend.response.LoginMessage;
 
 public interface AdminUsersServiceI {
-    AdminUser addAdminUser(AdminUserDTO adminUserDTO);
+    boolean addAdminUser(AdminUserDTO adminUserDTO);
     LoginMessage loginAdminUser(LoginDTO loginDTO);
 }
