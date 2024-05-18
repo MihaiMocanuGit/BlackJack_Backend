@@ -2,15 +2,11 @@ package blackjack.backend.service;
 
 import blackjack.backend.domain.GameSummary;
 import blackjack.backend.domain.Player;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.Optional;
 
 //@Service
-public interface CascadingSummaryI {
+public interface CascadingServiceI {
     Player addPlayer(Player player);
     GameSummary addSummary(GameSummary summary);
 

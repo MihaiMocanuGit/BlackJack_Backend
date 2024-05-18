@@ -12,6 +12,9 @@ import blackjack.backend.domain.Player;
 import blackjack.backend.exceptions.PlayerNotFoundException;
 import blackjack.backend.repository.GameSummaryRepository;
 import blackjack.backend.repository.PlayerRepository;
+import blackjack.backend.service.AdminUsersService;
+import blackjack.backend.service.AdminUsersServiceI;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -25,10 +28,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 public class PrimaryController {
     private final String origin = "http://localhost:3000";
+    ///TODO use CascadingService
     private PlayerRepository players;
     private GameSummaryRepository summaries;
     private GameSummaryAssembler summaryAssembler;
     private final PlayerModelAssembler playerAssembler;
+
+
+
 
     private boolean reversed;
 

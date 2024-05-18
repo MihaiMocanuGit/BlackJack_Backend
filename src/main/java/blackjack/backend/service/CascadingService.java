@@ -4,13 +4,14 @@ import blackjack.backend.domain.GameSummary;
 import blackjack.backend.domain.Player;
 import blackjack.backend.repository.GameSummaryRepository;
 import blackjack.backend.repository.PlayerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class CascadingService implements CascadingSummaryI {
+public class CascadingService implements CascadingServiceI {
     //@Autowired
     private PlayerRepository players;
 
