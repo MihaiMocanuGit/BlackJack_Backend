@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-
+@CrossOrigin
 @RestController
 public class PrimaryController {
-    private final String origin = "http://localhost:3000";
+    //private final String origin = "http://localhost:3000";
     private PlayerRepository players;
     private GameSummaryRepository summaries;
     private GameSummaryAssembler summaryAssembler;
@@ -70,7 +70,7 @@ public class PrimaryController {
         reversed = false;
     }
 
-    @CrossOrigin(origins = origin)
+
     @PostMapping("/players")
     ResponseEntity<?> newPlayer(@RequestBody Player newPlayer) {
 
@@ -81,7 +81,6 @@ public class PrimaryController {
                 .body(entityModel);
     }
 
-    @CrossOrigin(origins = origin)
     @PostMapping("/fakers")
     void fake() {
         Faker faker = new Faker("data/usernames.txt");
@@ -93,13 +92,11 @@ public class PrimaryController {
         }
     }
 
-    @CrossOrigin(origins = origin)
     @GetMapping("/status")
     public int status() {
 
         return 1;
     }
-    @CrossOrigin(origins = origin)
     @GetMapping("/players")
     public CollectionModel<EntityModel<Player>> all() {
         List<EntityModel<Player>> players = repoSortToList().stream() //
@@ -109,7 +106,6 @@ public class PrimaryController {
         return CollectionModel.of(players, linkTo(methodOn(PrimaryController.class).all()).withSelfRel());
     }
 
-    @CrossOrigin(origins = origin)
     @GetMapping("/players/{pageNo}/{pageSize}")
     public CollectionModel<EntityModel<Player>> page(@PathVariable("pageNo") Long pageNo, @PathVariable("pageSize") Long pageSize) {
 
@@ -141,7 +137,6 @@ public class PrimaryController {
     }
 
     // Single item
-    @CrossOrigin(origins = origin)
     @GetMapping("/players/{id}")
     public EntityModel<Player> one(@PathVariable String id) {
 
@@ -151,14 +146,12 @@ public class PrimaryController {
         return playerAssembler.toModel(player);
     }
 
-    @CrossOrigin(origins = origin)
     @GetMapping("/players/size")
     public long size() {
         return players.findAll().size();
     }
 
     ///TODO: Make it a PutMapping instead
-    @CrossOrigin(origins = origin)
     @GetMapping("/players/sort/{reverse}")
     public CollectionModel<EntityModel<Player>> sortRepo(@PathVariable("reverse") String reverse)
     {
@@ -168,7 +161,7 @@ public class PrimaryController {
 
         return this.all();
     }
-    @CrossOrigin(origins = origin)
+
     @PutMapping("/players/{id}")
     ResponseEntity<?> replacePlayers(@RequestBody Player newPlayer, @PathVariable String id) {
 
@@ -191,7 +184,7 @@ public class PrimaryController {
                 .body(entityModel);
     }
 
-    @CrossOrigin(origins = origin)
+
     @DeleteMapping("/players/{id}")
     ResponseEntity<?> deletePlayer(@PathVariable String id) {
 
