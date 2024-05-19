@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 
 import blackjack.backend.assemblers.GameSummaryAssembler;
 import blackjack.backend.assemblers.PlayerModelAssembler;
-import blackjack.backend.configuration.Faker;
+import blackjack.backend.DatabaseConfiguration.Faker;
 import blackjack.backend.domain.Player;
 import blackjack.backend.exceptions.PlayerNotFoundException;
 import blackjack.backend.repository.GameSummaryRepository;

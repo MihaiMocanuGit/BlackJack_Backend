@@ -1,6 +1,5 @@
-package blackjack.backend.configuration;
+package blackjack.backend.DatabaseConfiguration;
 
-import blackjack.backend.domain.GameSummary;
 import blackjack.backend.repository.GameSummaryRepository;
 import blackjack.backend.repository.PlayerRepository;
 import org.slf4j.Logger;

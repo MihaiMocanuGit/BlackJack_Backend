@@ -9,6 +9,8 @@ import blackjack.backend.service.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+//guide: https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
 @RequestMapping("/auth")
 @CrossOrigin
 @RestController

@@ -1,4 +1,4 @@
-package blackjack.backend.configuration;
+package blackjack.backend.DatabaseConfiguration;
 
 import blackjack.backend.domain.GameSummary;
 import blackjack.backend.domain.Player;
