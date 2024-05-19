@@ -32,7 +32,10 @@ public class AuthenticationService {
         user.setFullName(input.getFullName());
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
-
+        if (userRepository.findByEmail(user.getEmail()).isPresent())
+        {
+            return null;
+        }
         return userRepository.save(user);
     }
 
